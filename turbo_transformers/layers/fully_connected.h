@@ -12,24 +12,35 @@
 // See the AUTHORS file for names of contributors.
 
 #pragma once
+#include <memory>
+#include <utility>
+
 #include "turbo_transformers/core/tensor.h"
+#include "turbo_transformers/layers/types.h"
+
 namespace turbo_transformers {
 namespace layers {
-namespace kernels {
 
-void AddBias(const core::Tensor& bias, core::Tensor* output,
-             const std::string name = "AddBias");
-void AddInputBias(const core::Tensor& input1, const core::Tensor& input2,
-                  const core::Tensor& bias, core::Tensor* output,
-                  const std::string name = "AddInputBias");
-template <typename T>
-void Concat(const core::Tensor& t1, const core::Tensor& t2, size_t dim,
-            core::Tensor* output, const std::string name = "Concat");
+class FullyConnected {
+ public:
+  FullyConnected(core::Tensor dense_weight, core::Tensor dense_bias,
+                 types::ActivationType act_type, std::string &&name)
+      : dense_weight_(std::move(dense_weight)),
+        dense_bias_(std::move(dense_bias)),
+        act_type_(act_type),
+        name_(std::move(name)) {
+    EnforceShapeAndType();
+  }
+  void EnforceShapeAndType() const;
 
-template <typename T>
-void Concat(const core::Tensor& t1, const core::Tensor& t2,
-            const core::Tensor& t3, size_t dim, core::Tensor* output,
-            const std::string name = "Concat");
-}  // namespace kernels
+  void operator()(const core::Tensor &input_tensor, core::Tensor *output) const;
+
+ private:
+  core::Tensor dense_weight_;
+  core::Tensor dense_bias_;
+  types::ActivationType act_type_;
+  std::string name_;
+};
+
 }  // namespace layers
 }  // namespace turbo_transformers

@@ -13,7 +13,7 @@
 
 add_subdirectory(kernels)
 
-add_library(tt_layers OBJECT
+add_library(tt_layers STATIC
         bert_embedding.cpp
         bert_attention.cpp
         bert_intermediate.cpp
@@ -27,6 +27,7 @@ add_library(tt_layers OBJECT
         positionwise_ffn.cpp
         addbias_act.cpp
         addbias_layernorm.cpp
+        fully_connected.cpp
         )
 
 target_link_libraries(tt_layers PUBLIC tt_core tt_kernels)

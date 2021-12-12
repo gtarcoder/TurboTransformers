@@ -15,3 +15,19 @@ add_subdirectory(core)
 add_subdirectory(layers)
 add_subdirectory(python)
 add_subdirectory(loaders)
+
+# add_library(turbo_transformer STATIC)
+# target_link_libraries(turbo_transformer
+#         PUBLIC tt_kernels tt_core tt_npz_loader tt_layers
+# )
+
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/turbo_transformers
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+    )
+
+INSTALL(TARGETS tt_kernels tt_core tt_npz_loader tt_layers
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    PUBLIC_HEADER DESTINATION include
+)

@@ -18,3 +18,11 @@ target_link_libraries(bert_model
 
 add_executable(bert_model_example bert_model_example.cpp)
 target_link_libraries(bert_model_example bert_model)
+
+add_library(qd_relevance_model qd_relevance_model.cpp)
+target_link_libraries(qd_relevance_model
+        PUBLIC tt_npz_loader
+        PRIVATE tt_layers tt_kernels)
+
+add_executable(qd_relevance_model_example qd_relevance_model_example.cpp)
+target_link_libraries(qd_relevance_model_example qd_relevance_model)

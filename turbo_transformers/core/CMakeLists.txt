@@ -15,7 +15,7 @@
 add_library(catch2_test_main OBJECT catch2_test_main.cpp)
 target_link_libraries(catch2_test_main Catch2)
 add_library(tt_core
-        OBJECT
+        STATIC
             blas_${BLAS_PROVIDER}.cpp
             enforce.cpp
             memory.cpp

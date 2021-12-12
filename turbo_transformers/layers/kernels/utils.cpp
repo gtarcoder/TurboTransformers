@@ -30,6 +30,85 @@ namespace layers {
 namespace kernels {
 
 template <typename T>
+void Concat(const core::Tensor& t1, const core::Tensor& t2,
+            const core::Tensor& t3, size_t dim, core::Tensor* output,
+            const std::string name) {
+#ifdef WITH_PERFTOOLS
+  auto& profile_ctx = core::Profiler::GetInstance();
+  profile_ctx.start_profile(name, t1.device_type());
+#endif
+  TT_ENFORCE(t1.n_dim() >= dim && t2.n_dim() >= dim && t3.n_dim() >= dim,
+             "concatation of 3 tensors with dim as %d, %d and %d is illegal.",
+             t1.n_dim(), t2.n_dim(), t3.n_dim());
+
+  auto t1_size = t1.shape(dim);
+  auto t2_size = t2.shape(dim);
+  auto t3_size = t3.shape(dim);
+
+  std::vector<int64_t> output_shape;
+  for (size_t i = 0; i < t1.n_dim(); i++) {
+    if (i != dim) {
+      TT_ENFORCE(
+          t1.shape(i) == t2.shape(i) && t1.shape(i) == t3.shape(i),
+          "concatation of 3 tensors illegal, at dim %d size is %d vs %d vs %d",
+          i, t1.shape(i), t2.shape(i), t3.shape(i));
+      output_shape.push_back(t1.shape(i));
+    } else {
+      output_shape.push_back(t1_size + t2_size + t3_size);
+    }
+  }
+
+  int64_t high_dim = 1;
+  for (size_t i = 0; i < dim; i++) {
+    high_dim *= t1.shape(i);
+  }
+
+  size_t low_dim = 1;
+  for (size_t i = t1.n_dim() - 1; i > dim; i--) {
+    low_dim *= t1.shape(i);
+  }
+
+  output->Reshape<T>(output_shape, t1.device_type(), t1.device_id(),
+                     "Concat/Reshape");
+  if (t1.device_type() == kDLGPU) {
+#ifdef TT_WITH_CUDA
+    core::CUDADeviceContext& cuda_ctx = core::CUDADeviceContext::GetInstance();
+    GPUConcat<T>(t1.data<T>(), t2.data<T>(), high_dim, t1_size, t2_size,
+                 low_dim, cuda_ctx.stream(), output->mutableData<T>());
+#endif
+  } else if (t1.device_type() == kDLCPU) {
+    size_t output_dim = output_shape[dim];
+#pragma omp parallel for
+    for (int64_t i = 0; i < high_dim; ++i) {
+      for (int64_t j = 0; j < t1_size; ++j) {
+        core::Copy(t1.data<T>() + (i * t1_size + j) * low_dim, low_dim,
+                   t1.device_type(), output->device_type(),
+                   output->mutableData<T>() + (i * output_dim + j) * low_dim);
+      }
+      for (int64_t j = 0; j < t2_size; ++j) {
+        core::Copy(t2.data<T>() + (i * t2_size + j) * low_dim, low_dim,
+                   t1.device_type(), output->device_type(),
+                   output->mutableData<T>() +
+                       (i * output_dim + t1_size + j) * low_dim);
+      }
+      for (int64_t j = 0; j < t3_size; ++j) {
+        core::Copy(t3.data<T>() + (i * t3_size + j) * low_dim, low_dim,
+                   t1.device_type(), output->device_type(),
+                   output->mutableData<T>() +
+                       (i * output_dim + t1_size + t2_size + j) * low_dim);
+      }
+    }
+  }
+#ifdef WITH_PERFTOOLS
+  profile_ctx.end_profile(name, t1.device_type());
+#endif
+}
+
+template void Concat<float>(const core::Tensor& t1, const core::Tensor& t2,
+                            const core::Tensor& t3, size_t dim,
+                            core::Tensor* output, const std::string name);
+
+template <typename T>
 void Concat(const core::Tensor& t1, const core::Tensor& t2, size_t dim,
             core::Tensor* output, const std::string name) {
 #ifdef WITH_PERFTOOLS

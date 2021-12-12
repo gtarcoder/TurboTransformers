@@ -408,7 +408,7 @@ class BertModelNoPooler:
             output_attentions: Optional[bool] = None,
             output_hidden_states: Optional[bool] = None,
             pooling_type: PoolingType = PoolingType.
-            FIRST,  #the following parameters are exclusive for turbo
+            FIRST,  # the following parameters are exclusive for turbo
             return_type: Optional[ReturnType] = None):
         attention_masks = try_convert(create_empty_if_none(attention_masks))
         token_type_ids = try_convert(create_empty_if_none(token_type_ids))
@@ -585,8 +585,7 @@ class BertModel:
                         'input_ids', 'attention_mask', 'token_type_ids'
                     ],
                     opset_version=11,  # the ONNX version to export the model to
-                    do_constant_folding=
-                    True,  # whether to execute constant folding for optimization
+                    do_constant_folding=True,  # whether to execute constant folding for optimization
                     output_names=['output'],
                     dynamic_axes={
                         'input_ids': [0, 1],

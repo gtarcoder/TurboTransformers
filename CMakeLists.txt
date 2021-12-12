@@ -17,7 +17,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_C_FLAGS "-Wall")
 
@@ -92,3 +92,29 @@ if (WITH_MODULE_BENCHMAKR)
     add_subdirectory(benchmark)
 endif()
 add_subdirectory(example)
+
+
+INSTALL(FILES ${CMAKE_BINARY_DIR}/3rd/cnpy/include/cnpy.h
+    DESTINATION include
+    )
+INSTALL(FILES ${CMAKE_BINARY_DIR}/3rd/cnpy/lib/libcnpy.a
+    DESTINATION lib
+    )
+INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/3rd/zlib/include/
+    DESTINATION include/zlib
+    )
+INSTALL(FILES ${CMAKE_BINARY_DIR}/3rd/zlib/lib/libz.a
+    DESTINATION lib
+    )
+INSTALL(FILES ${CMAKE_BINARY_DIR}/3rd/libloguru.a
+    DESTINATION lib
+    )
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/3rd/dlpack/include/
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+    )
+
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/3rd/FP16/include/
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+    )

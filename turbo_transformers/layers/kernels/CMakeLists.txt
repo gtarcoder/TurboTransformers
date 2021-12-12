@@ -11,7 +11,7 @@
 # permissions and limitations under the License.
 # See the AUTHORS file for names of contributors.
 
-add_library(tt_kernels OBJECT
+add_library(tt_kernels STATIC
         layer_norm.cpp softmax.cpp transpose.cpp activation.cpp
         common.cpp seq_pool.cpp mat_mul.cpp embedding.cpp utils.cpp)
 target_link_libraries(tt_kernels PUBLIC tt_core)

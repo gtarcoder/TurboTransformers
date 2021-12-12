@@ -70,8 +70,8 @@ TEST_CASE("cpu-concate", "test1") {
 
 #ifdef TT_WITH_CUDA
 template <typename T, typename Func>
-static void AddBiasTestHelper(int batch_size, int seq_length,
-                              int hidden_size, const Func& func) {
+static void AddBiasTestHelper(int batch_size, int seq_length, int hidden_size,
+                              const Func& func) {
   core::Tensor gpu_bias(nullptr), cpu_bias(nullptr), gpu_out(nullptr),
       cpu_out(nullptr);
   std::tie(cpu_bias, gpu_bias) =
@@ -101,17 +101,21 @@ TEST_CASE("addbias-gpu-test") {
 template <typename T, typename Func>
 static void AddInputBiasTestHelper(int batch_size, int seq_length,
                                    int hidden_size, const Func& func) {
-  core::Tensor gpu_input1(nullptr), cpu_input1(nullptr), gpu_input2(nullptr), cpu_input2(nullptr),
-               gpu_bias(nullptr), cpu_bias(nullptr), gpu_out(nullptr), cpu_out(nullptr);
-  std::tie(cpu_input1, gpu_input1) = common::CreateAndFillRandomForCPUGPUTensors<T>(
-      {batch_size, seq_length, hidden_size});
-  std::tie(cpu_input2, gpu_input2) = common::CreateAndFillRandomForCPUGPUTensors<T>(
-      {batch_size, seq_length, hidden_size});
+  core::Tensor gpu_input1(nullptr), cpu_input1(nullptr), gpu_input2(nullptr),
+      cpu_input2(nullptr), gpu_bias(nullptr), cpu_bias(nullptr),
+      gpu_out(nullptr), cpu_out(nullptr);
+  std::tie(cpu_input1, gpu_input1) =
+      common::CreateAndFillRandomForCPUGPUTensors<T>(
+          {batch_size, seq_length, hidden_size});
+  std::tie(cpu_input2, gpu_input2) =
+      common::CreateAndFillRandomForCPUGPUTensors<T>(
+          {batch_size, seq_length, hidden_size});
   std::tie(cpu_bias, gpu_bias) =
       common::CreateAndFillRandomForCPUGPUTensors<T>({hidden_size});
   std::tie(cpu_out, gpu_out) = common::CreateAndFillRandomForCPUGPUTensors<T>(
       {batch_size, seq_length, hidden_size});
-  func(cpu_input1, cpu_input2, cpu_bias, cpu_out, gpu_input1, gpu_input2, gpu_bias, gpu_out);
+  func(cpu_input1, cpu_input2, cpu_bias, cpu_out, gpu_input1, gpu_input2,
+       gpu_bias, gpu_out);
 }
 
 TEST_CASE("addinputbias-gpu-test") {
